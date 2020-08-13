@@ -1,0 +1,8 @@
+This is a test
+pop 2
+push 3
+or 4
+add 2
+something else here
+eq 3
+lt 5
