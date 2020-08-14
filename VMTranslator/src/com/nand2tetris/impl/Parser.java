@@ -12,11 +12,15 @@ We will read in a .vm file, parse it line by line and add it to the List
 public class Parser {
     private List<String> commands;
     int tracker;
+    String arg1;
+    String arg2;
 
     public Parser(String filename)  {
         this.tracker = 0;
         this.commands = new ArrayList<>();
         this.readData(filename);
+        this.arg1 = "";
+        this.arg2 = "";
     }
 
     // Read file and add to commands
@@ -27,7 +31,9 @@ public class Parser {
 
             while(reader.hasNextLine()){
                 String command = reader.nextLine();
-                this.commands.add(command);
+                if(command.length() != 0) {
+                    this.commands.add(command);
+                }
             }
             reader.close();
         } catch (FileNotFoundException e){
@@ -44,7 +50,7 @@ public class Parser {
     }
 
     public boolean hasNext(){
-        return tracker != commands.size();
+        return tracker != commands.size() - 1;
     }
 
     public void advance(){
@@ -59,7 +65,7 @@ public class Parser {
      */
     public String commandType(){
         String current = commands.get(tracker);
-        int index = current.indexOf(' ');
+        int index = current.indexOf(' ') != -1 ? current.indexOf(' ') : current.length();
         String command = current.substring(0, index);
 
         switch(command){
@@ -84,5 +90,17 @@ public class Parser {
 
     public void reset(){
         this.tracker = 0;
+    }
+
+    public String getArg1(){
+        String[] inputs = commands.get(tracker).split(" ");
+        if(inputs.length >= 2) return inputs[1];
+        else return " ";
+    }
+
+    public int getArg2(){
+        String[] inputs = commands.get(tracker).split(" ");
+        if(inputs.length >= 3) return Integer.valueOf(inputs[2]);
+        else return 0;
     }
 }
