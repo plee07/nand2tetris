@@ -8,16 +8,22 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-	    if(args.length == 0) throw new IllegalArgumentException("No arguments were provided");
-        String filename = args[0];
-        CodeWriter test = new CodeWriter("test3.asm");
-        test.writeSomething("Some value here\n");
-        test.writeSomething("Another value here\n");
-        test.close();
-        Parser parser = new Parser(filename);
+	    if(args.length != 2) throw new IllegalArgumentException("No arguments were provided");
+        String inputFilename = args[0];
+        String outputFilename = args[1];
+        CodeWriter writer = new CodeWriter(outputFilename);
+        Parser parser = new Parser(inputFilename);
+
 	    while(parser.hasNext()){
+	        String commandType = parser.commandType();
+            switch(commandType){
+                case "C_PUSH":
+                    writer.writePush(parser.getArg1(), parser.getArg2());
+                    break;
+            }
+
 	        parser.advance();
-	        System.out.println(parser.getCurrent());
         }
+        writer.close();
     }
 }

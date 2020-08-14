@@ -1,9 +1,7 @@
 package com.nand2tetris.impl;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /*
 Implementation of this class will be a bit different than what was defined in the book
@@ -12,8 +10,8 @@ We will read in a .vm file, parse it line by line and add it to the List
 public class Parser {
     private List<String> commands;
     int tracker;
-    String arg1;
-    String arg2;
+    private String arg1;
+    private String arg2;
 
     public Parser(String filename)  {
         this.tracker = 0;
@@ -22,6 +20,7 @@ public class Parser {
         this.arg1 = "";
         this.arg2 = "";
     }
+
 
     // Read file and add to commands
     private void readData(String filename){
@@ -104,3 +103,5 @@ public class Parser {
         else return 0;
     }
 }
+
+
