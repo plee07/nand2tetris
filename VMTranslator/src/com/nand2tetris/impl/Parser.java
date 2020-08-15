@@ -30,6 +30,9 @@ public class Parser {
 
             while(reader.hasNextLine()){
                 String command = reader.nextLine();
+                if(command.length() >= 2 && command.substring(0,2).equals("//")){
+                    continue;
+                }
                 if(command.length() != 0) {
                     this.commands.add(command);
                 }
@@ -49,7 +52,7 @@ public class Parser {
     }
 
     public boolean hasNext(){
-        return tracker != commands.size() - 1;
+        return tracker != commands.size();
     }
 
     public void advance(){
@@ -89,6 +92,12 @@ public class Parser {
 
     public void reset(){
         this.tracker = 0;
+    }
+
+    public String getArg0() {
+        String[] inputs = commands.get(tracker).split(" ");
+        if (inputs.length >= 1) return inputs[0];
+        else return " ";
     }
 
     public String getArg1(){

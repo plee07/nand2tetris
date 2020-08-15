@@ -1,7 +1,0 @@
-push constant 3
-push this 6
-push local 6
-or
-add
-eq
-lt
