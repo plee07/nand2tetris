@@ -13,11 +13,13 @@ public class CodeWriter {
     private Map<String, String> segments;
     private int register;
     private int temp;
+    private int pointer;
 
-    public CodeWriter(String filename, int register, int temp) throws IOException {
+    public CodeWriter(String filename, int register, int temp, int pointer) throws IOException {
         writer = new BufferedWriter(new FileWriter(filename));
         this.register = register;
         this.temp = temp;
+        this.pointer = pointer;
         createSegmentMap();
     }
 
@@ -40,89 +42,112 @@ public class CodeWriter {
 
     // Push the value of segment[index] onto the stack
     public void writePush(String arg1, int arg2) throws IOException {
-        if(arg1.equals("constant")){
-            String output = String.format(
-                    "// push constant %d\n" +
-                            "@%d\n" +
-                            "D=A\n" +
-                            "@SP\n" +
-                            "AM=M\n" +
-                            "M=D\n" +
-                            "@SP\n" +
-                            "M=M+1"
-            , arg2, arg2);
-            this.writeData(output);
-        } else if(arg1.equals("temp")){
-            String output = String.format(
-                    "// push %s %d\n" +
-                            "@R%d\n" +
-                            "D=M\n" +
-                            "@SP\n" +
-                            "A=M\n" +
-                            "M=D\n" +
-                            "@SP\n" +
-                            "M=M+1"
-                    ,arg1, arg2, arg2+temp);
-            this.writeData(output);
-        } else {
-          String output = String.format(
-                  "// push %s %d\n" +
-                          "@%d\n" +
-                          "D=A\n" +
-                          "%s\n" +
-                          "D=D+M\n" +
-                          "@R%d\n" +
-                          "M=D\n" +
-                          "@R%d\n" +
-                          "A=M\n" +
-                          "D=M\n" +
-                          "@SP\n" +
-                          "A=M\n" +
-                          "M=D\n" +
-                          "@SP\n" +
-                          "M=M+1"
-          ,arg1, arg2, arg2, this.segments.get(arg1),this.register, this.register);
-          this.writeData(output);
+        switch(arg1){
+            case "constant":
+                this.writeData(String.format(
+                        "// push constant %d\n" +
+                                "@%d\n" +
+                                "D=A\n" +
+                                "@SP\n" +
+                                "AM=M\n" +
+                                "M=D\n" +
+                                "@SP\n" +
+                                "M=M+1"
+                        , arg2, arg2));
+                break;
+            case "temp":
+                this.writeData(String.format(
+                        "// push %s %d\n" +
+                                "@R%d\n" +
+                                "D=M\n" +
+                                "@SP\n" +
+                                "A=M\n" +
+                                "M=D\n" +
+                                "@SP\n" +
+                                "M=M+1"
+                        ,arg1, arg2, arg2+temp));
+                break;
+            case "pointer":
+                this.writeData(String.format(
+                        "// push %s %d\n" +
+                                "@%d\n" +
+                                "D=M\n" +
+                                "@SP\n" +
+                                "A=M\n" +
+                                "M=D\n" +
+                                "@SP\n" +
+                                "M=M+1"
+                        ,arg1, arg2, pointer+arg2));
+                break;
+            default:
+                this.writeData(String.format(
+                        "// push %s %d\n" +
+                                "@%d\n" +
+                                "D=A\n" +
+                                "%s\n" +
+                                "D=D+M\n" +
+                                "@R%d\n" +
+                                "M=D\n" +
+                                "@R%d\n" +
+                                "A=M\n" +
+                                "D=M\n" +
+                                "@SP\n" +
+                                "A=M\n" +
+                                "M=D\n" +
+                                "@SP\n" +
+                                "M=M+1"
+                        ,arg1, arg2, arg2, this.segments.get(arg1),this.register, this.register));
         }
     }
 
     public void writePop(String arg1, int arg2) throws IOException {
-        if(arg1.equals("temp")){
-            String output = String.format(
-                    "// pop %s %d\n" +
-                            "@SP\n" +
-                            "A=M-1\n" +
-                            "D=M\n" +
-                            "@R%d\n" +
-                            "M=D\n" +
-                            "@SP\n" +
-                            "M=M-1"
-                    ,arg1, arg2, arg2+temp);
-            this.writeData(output);
-        } else{
-            String output = String.format(
-                    "// pop %s %d\n" +
-                            "%s\n" +
-                            "D=M\n" +
-                            "@%d\n" +
-                            "D=D+A\n" +
-                            "@R%d\n" +
-                            "M=D\n" +
-                            "@SP\n" +
-                            "A=M-1\n" +
-                            "D=M\n" +
-                            "@R%d\n" +
-                            "A=M\n" +
-                            "M=D\n" +
-                            "@SP\n" +
-                            "M=M-1"
-                    ,arg1, arg2, this.segments.get(arg1), arg2, this.register, this.register,this.segments.get(arg1));
-            this.writeData(output);
+        switch(arg1){
+            case "temp":
+                this.writeData(String.format(
+                        "// pop %s %d\n" +
+                                "@SP\n" +
+                                "A=M-1\n" +
+                                "D=M\n" +
+                                "@R%d\n" +
+                                "M=D\n" +
+                                "@SP\n" +
+                                "M=M-1"
+                        ,arg1, arg2, arg2+temp));
+                break;
+            case "pointer":
+                this.writeData(String.format(
+                        "// pop %s %d\n" +
+                                "@SP\n" +
+                                "A=M-1\n" +
+                                "D=M\n" +
+                                "@%d\n" +
+                                "M=D\n" +
+                                "@SP\n" +
+                                "M=M-1"
+                ,arg1, arg2, pointer + arg2));
+                break;
+            default:
+                this.writeData(String.format(
+                        "// pop %s %d\n" +
+                                "%s\n" +
+                                "D=M\n" +
+                                "@%d\n" +
+                                "D=D+A\n" +
+                                "@R%d\n" +
+                                "M=D\n" +
+                                "@SP\n" +
+                                "A=M-1\n" +
+                                "D=M\n" +
+                                "@R%d\n" +
+                                "A=M\n" +
+                                "M=D\n" +
+                                "@SP\n" +
+                                "M=M-1"
+                        ,arg1, arg2, this.segments.get(arg1), arg2, this.register, this.register,this.segments.get(arg1)));
         }
-
     }
 
-    public void writeArithemetic(String command) throws IOException {
+    public void writeArithmetic(String command) throws IOException {
         switch(command){
             case "add":
                 this.writeData(String.format(
