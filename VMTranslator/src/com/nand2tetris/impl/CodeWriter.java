@@ -11,12 +11,14 @@ public class CodeWriter {
 
     private BufferedWriter writer;
     private Map<String, String> segments;
+    private String filename;
     private int register;
     private int temp;
     private int pointer;
 
     public CodeWriter(String filename, int register, int temp, int pointer) throws IOException {
         writer = new BufferedWriter(new FileWriter(filename));
+        this.filename = filename.substring(0,filename.indexOf('.'));
         this.register = register;
         this.temp = temp;
         this.pointer = pointer;
@@ -79,7 +81,21 @@ public class CodeWriter {
                                 "M=M+1"
                         ,arg1, arg2, pointer+arg2));
                 break;
-            default:
+            case "static":
+                String name = String.format("%s.%d", this.filename, arg2);
+                System.out.println(name);
+                this.writeData(String.format(
+                        "//push static %d\n" +
+                                "@%s\n" +
+                                "D=M\n" +
+                                "@SP\n" +
+                                "AM=M\n" +
+                                "M=D\n" +
+                                "@SP\n" +
+                                "M=M+1"
+                        ,arg2, name));
+                break;
+                default:
                 this.writeData(String.format(
                         "// push %s %d\n" +
                                 "@%d\n" +
@@ -125,6 +141,19 @@ public class CodeWriter {
                                 "@SP\n" +
                                 "M=M-1"
                 ,arg1, arg2, pointer + arg2));
+                break;
+            case "static":
+                String name = String.format("%s.%d", this.filename, arg2);
+                this.writeData(String.format(
+                        "//pop static %d\n" +
+                                "@SP\n" +
+                                "A=M-1\n" +
+                                "D=M\n" +
+                                "@%s\n" +
+                                "M=D\n" +
+                                "@SP\n" +
+                                "M=M-1"
+                        ,arg2, name));
                 break;
             default:
                 this.writeData(String.format(

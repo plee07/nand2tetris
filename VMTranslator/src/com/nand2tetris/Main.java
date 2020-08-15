@@ -23,8 +23,10 @@ public class Main {
                     break;
                 case "C_POP":
                     writer.writePop(parser.getArg1(), parser.getArg2());
+                    break;
                 case "C_ARITHMETIC":
                     writer.writeArithmetic(parser.getArg0());
+                    break;
             }
 
 	        parser.advance();
