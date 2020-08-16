@@ -5,18 +5,18 @@ import com.nand2tetris.impl.Parser;
 
 import java.io.IOException;
 
-public class Main {
+public class Main{
 
-    public static void main(String[] args) throws IOException {
-	    if(args.length != 2) throw new IllegalArgumentException("No arguments were provided");
+    public static void main(String[] args) throws IOException{
+        if(args.length != 2) throw new IllegalArgumentException("No arguments were provided");
         String inputFilename = args[0];
         String outputFilename = args[1];
-        CodeWriter writer = new CodeWriter(outputFilename,13, 5, 3);
+        CodeWriter writer = new CodeWriter(outputFilename, 13, 5, 3);
         Parser parser = new Parser(inputFilename);
 
-	    while(parser.hasNext()){
-	        String commandType = parser.commandType();
-	        System.out.println(commandType);
+        while(parser.hasNext()){
+            String commandType = parser.commandType();
+            System.out.println(commandType);
             switch(commandType){
                 case "C_PUSH":
                     writer.writePush(parser.getArg1(), parser.getArg2());
@@ -29,7 +29,7 @@ public class Main {
                     break;
             }
 
-	        parser.advance();
+            parser.advance();
         }
         writer.close();
     }

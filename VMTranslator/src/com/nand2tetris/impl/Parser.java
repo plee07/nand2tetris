@@ -1,4 +1,5 @@
 package com.nand2tetris.impl;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -7,13 +8,13 @@ import java.util.*;
 Implementation of this class will be a bit different than what was defined in the book
 We will read in a .vm file, parse it line by line and add it to the List
  */
-public class Parser {
+public class Parser{
     private List<String> commands;
     int tracker;
     private String arg1;
     private String arg2;
 
-    public Parser(String filename)  {
+    public Parser(String filename){
         this.tracker = 0;
         this.commands = new ArrayList<>();
         this.readData(filename);
@@ -30,24 +31,24 @@ public class Parser {
 
             while(reader.hasNextLine()){
                 String command = reader.nextLine();
-                if(command.length() >= 2 && command.substring(0,2).equals("//")){
+                if(command.length() >= 2 && command.substring(0, 2).equals("//")){
                     continue;
                 }
-                if(command.length() != 0) {
+                if(command.length() != 0){
                     this.commands.add(command);
                 }
             }
             reader.close();
-        } catch (FileNotFoundException e){
+        }catch(FileNotFoundException e){
             System.out.println("File was not found");
         }
     }
 
-    public List<String> getCommands() {
+    public List<String> getCommands(){
         return commands;
     }
 
-    public void setCommands(List<String> commands) {
+    public void setCommands(List<String> commands){
         this.commands = commands;
     }
 
@@ -58,6 +59,7 @@ public class Parser {
     public void advance(){
         tracker++;
     }
+
     public String getCurrent(){
         return commands.get(tracker);
     }
@@ -94,9 +96,9 @@ public class Parser {
         this.tracker = 0;
     }
 
-    public String getArg0() {
+    public String getArg0(){
         String[] inputs = commands.get(tracker).split(" ");
-        if (inputs.length >= 1) return inputs[0];
+        if(inputs.length >= 1) return inputs[0];
         else return " ";
     }
 
