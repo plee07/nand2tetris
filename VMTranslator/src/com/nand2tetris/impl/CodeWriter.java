@@ -15,6 +15,7 @@ public class CodeWriter {
     private int register;
     private int temp;
     private int pointer;
+    private int counter;
 
     public CodeWriter(String filename, int register, int temp, int pointer) throws IOException {
         writer = new BufferedWriter(new FileWriter(filename));
@@ -22,6 +23,7 @@ public class CodeWriter {
         this.register = register;
         this.temp = temp;
         this.pointer = pointer;
+        this.counter = 0;
         createSegmentMap();
     }
 
@@ -177,44 +179,108 @@ public class CodeWriter {
     }
 
     public void writeArithmetic(String command) throws IOException {
+        String truth = "";
+        String end = "";
+        String truthAddr = "";
+        String endAddr = "";
         switch(command){
             case "add":
-                this.writeData(String.format(
-                       "// %s\n" +
-                               "@SP\n" +
-                               "M=M-1\n" +
-                               "AM=M\n" +
-                               "D=M\n" +
-                               "@SP\n" +
-                               "M=M-1\n" +
-                               "AM=M\n" +
-                               "D=D+M\n" +
-                               "@SP\n" +
-                               "AM=M\n" +
-                               "M=D\n" +
-                               "@SP\n" +
-                               "M=M+1"
-                ,command));
+                operators(command, "+");
                 break;
             case "sub":
-                this.writeData(String.format(
-                        "// %s\n" +
+                operators(command, "-");
+                break;
+            case "and":
+                operators(command, "&");
+                break;
+            case "or":
+                operators(command, "|");
+                break;
+            case "eq":
+                comparisonOperatorBuilder(command, "JEQ");
+                break;
+            case "gt":
+                comparisonOperatorBuilder(command, "JGT");
+                break;
+            case "lt":
+                comparisonOperatorBuilder(command, "JLT");
+                break;
+            case "neg":
+                this.writeData(
+                        "// neg\n" +
                                 "@SP\n" +
-                                "M=M-1\n" +
-                                "AM=M\n" +
-                                "D=M\n" +
-                                "@SP\n" +
-                                "M=M-1\n" +
-                                "AM=M\n" +
-                                "D=M-D\n" +
-                                "@SP\n" +
-                                "AM=M\n" +
+                                "AM=M-1\n" +
+                                "D=-M\n" +
                                 "M=D\n" +
                                 "@SP\n" +
                                 "M=M+1"
-                ,command));
+                );
+                break;
+            case "not":
+                this.writeData(
+                        "// not\n" +
+                                "@SP\n" +
+                                "AM=M-1\n" +
+                                "D=!M\n" +
+                                "M=D\n" +
+                                "@SP\n" +
+                                "M=M+1"
+                );
                 break;
         }
     }
+
+    private void comparisonOperatorBuilder(String command, String type) throws IOException {
+        String truth = String.format("@TRUTH%d", counter);
+        String truthAddr = String.format("(TRUTH%d)", counter);
+        String end = String.format("@END%d", counter);
+        String endAddr = String.format("(END%d)", counter);
+        counter++;
+        this.writeData(String.format(
+                "// %s\n" +
+                        "@SP\n" +
+                        "M=M-1\n" +
+                        "AM=M\n" +
+                        "D=M\n" +
+                        "@SP\n" +
+                        "M=M-1\n" +
+                        "AM=M\n" +
+                        "D=M-D\n" +
+                        "%s\n" +
+                        "D; %s\n" +
+                        "@SP\n" +
+                        "AM=M\n" +
+                        "M=0\n" +
+                        "%s\n" +
+                        "0; JMP\n" +
+                        "%s\n" +
+                        "@SP\n" +
+                        "AM=M\n" +
+                        "M=-1\n" +
+                        "%s\n" +
+                        "@SP\n" +
+                        "M=M+1"
+                ,command, truth, type, end, truthAddr, endAddr));
+    }
+
+    private void operators(String command, String type) throws IOException {
+        this.writeData(String.format(
+                "// %s\n" +
+                        "@SP\n" +
+                        "M=M-1\n" +
+                        "AM=M\n" +
+                        "D=M\n" +
+                        "@SP\n" +
+                        "M=M-1\n" +
+                        "AM=M\n" +
+                        "D=M%sD\n" +
+                        "@SP\n" +
+                        "AM=M\n" +
+                        "M=D\n" +
+                        "@SP\n" +
+                        "M=M+1"
+                ,command, type));
+    }
+
 
 }
