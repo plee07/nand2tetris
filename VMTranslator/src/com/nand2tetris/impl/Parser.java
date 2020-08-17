@@ -35,7 +35,7 @@ public class Parser{
                     continue;
                 }
                 if(command.length() != 0){
-                    this.commands.add(command);
+                    this.commands.add(command.replaceAll("\\s+"," "));
                 }
             }
             reader.close();
@@ -44,13 +44,6 @@ public class Parser{
         }
     }
 
-    public List<String> getCommands(){
-        return commands;
-    }
-
-    public void setCommands(List<String> commands){
-        this.commands = commands;
-    }
 
     public boolean hasNext(){
         return tracker != commands.size();
@@ -87,6 +80,12 @@ public class Parser{
                 return "C_POP";
             case "push":
                 return "C_PUSH";
+            case "label":
+                return "C_LABEL";
+            case "if-goto":
+                return "C_IF";
+            case "goto":
+                return "C_GOTO";
             default:
                 return command;
         }
@@ -112,6 +111,10 @@ public class Parser{
         String[] inputs = commands.get(tracker).split(" ");
         if(inputs.length >= 3) return Integer.valueOf(inputs[2]);
         else return 0;
+    }
+
+    public String getFullCommand(){
+        return commands.get(tracker);
     }
 }
 

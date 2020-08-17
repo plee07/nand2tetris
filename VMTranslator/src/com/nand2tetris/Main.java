@@ -24,6 +24,14 @@ public class Main{
                 case "C_POP":
                     writer.writePop(parser.getArg1(), parser.getArg2());
                     break;
+                case "C_LABEL":
+                    writer.writeLabel(parser.getArg1(), parser.getFullCommand());
+                    break;
+                case "C_IF":
+                    writer.writeIf(parser.getArg1(), parser.getFullCommand());
+                    break;
+                case "C_GOTO":
+                    writer.writeGoto(parser.getArg1(), parser.getFullCommand());
                 case "C_ARITHMETIC":
                     writer.writeArithmetic(parser.getArg0());
                     break;

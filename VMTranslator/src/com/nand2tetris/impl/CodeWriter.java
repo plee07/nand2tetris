@@ -51,7 +51,7 @@ public class CodeWriter{
         switch(arg1){
             case "constant":
                 this.writeData(sb
-                    .append("// push constant " + arg2 + "\n")
+                    .append("// push constant ").append(arg2).append("\n")
                     .append("@" + arg2 + "\n")
                     .append("D=A\n")
                     .append("@SP\n")
@@ -63,8 +63,8 @@ public class CodeWriter{
                 break;
             case "temp":
                 this.writeData(sb
-                    .append("// push " + arg1 + " " + arg2 + "\n")
-                    .append("@R" + (arg2+temp) + "\n")
+                    .append("// push ").append(arg1).append(" ").append(arg2).append("\n")
+                    .append("@R").append(arg2+temp).append("\n")
                     .append("D=M\n")
                     .append("@SP\n")
                     .append("A=M\n")
@@ -75,8 +75,8 @@ public class CodeWriter{
                 break;
             case "pointer":
                 this.writeData(sb
-                    .append("// push " + arg1 + " " +  arg2 + "\n")
-                    .append("@" + (pointer+arg2) + "\n")
+                    .append("// push ").append(arg1).append(" ").append(arg2).append("\n")
+                    .append("@").append(pointer+arg2).append("\n")
                     .append("D=M\n")
                     .append("@SP\n")
                     .append("A=M\n")
@@ -88,8 +88,8 @@ public class CodeWriter{
             case "static":
                 String name = this.filename + "." + arg2;
                 this.writeData(sb
-                    .append("//push static " + arg2 + "\n")
-                    .append("@" + name +"\n")
+                    .append("//push static ").append(arg2).append("\n")
+                    .append("@").append(name).append("\n")
                     .append("D=M\n")
                     .append("@SP\n")
                     .append("AM=M\n")
@@ -100,14 +100,14 @@ public class CodeWriter{
                 break;
             default:
                 this.writeData(sb
-                    .append("// push " + arg1 + " " + arg2 +"\n")
-                    .append("@" + arg2 + "\n")
+                    .append("// push ").append(arg1).append(" ").append(arg2).append("\n")
+                    .append("@").append(arg2).append("\n")
                     .append("D=A\n")
-                    .append(this.segments.get(arg1) + "\n")
+                    .append(this.segments.get(arg1)).append("\n")
                     .append("D=D+M\n")
-                    .append("@R" + this.register +"\n")
+                    .append("@R").append(this.register).append("\n")
                     .append("M=D\n")
-                    .append("@R" + this.register +"\n")
+                    .append("@R").append(this.register).append("\n")
                     .append("A=M\n")
                     .append("D=M\n")
                     .append("@SP\n")
@@ -124,11 +124,11 @@ public class CodeWriter{
         switch(arg1){
             case "temp":
                 this.writeData(sb
-                    .append("// pop " + arg1 + " " + arg2 +"\n")
+                    .append("// pop ").append(arg1).append(" ").append(arg2).append("\n")
                     .append("@SP\n")
                     .append("A=M-1\n")
                     .append("D=M\n")
-                    .append("@R" + (arg2 + temp) + "\n")
+                    .append("@R").append(arg2 + temp).append("\n")
                     .append("M=D\n")
                     .append("@SP\n")
                     .append("M=M-1")
@@ -136,11 +136,11 @@ public class CodeWriter{
                 break;
             case "pointer":
                 this.writeData(sb
-                    .append("// pop " + arg1 + " " + arg2 +"\n")
+                    .append("// pop ").append(arg1).append(" ").append(arg2).append("\n")
                     .append("@SP\n")
                     .append("A=M-1\n")
                     .append("D=M\n")
-                    .append("@" + (pointer + arg2) +"\n")
+                    .append("@").append(pointer + arg2).append("\n")
                     .append("M=D\n")
                     .append("@SP\n")
                     .append("M=M-1")
@@ -149,11 +149,11 @@ public class CodeWriter{
             case "static":
                 String name = String.format("%s.%d", this.filename, arg2);
                 this.writeData(sb
-                    .append("//pop static " + arg2 + "\n")
+                    .append("//pop static ").append(arg2).append("\n")
                     .append("@SP\n")
                     .append("A=M-1\n")
                     .append("D=M\n")
-                    .append("@" + name + "\n")
+                    .append("@").append(name).append("\n")
                     .append("M=D\n")
                     .append("@SP\n")
                     .append("M=M-1")
@@ -161,17 +161,17 @@ public class CodeWriter{
                 break;
             default:
                 this.writeData(sb
-                    .append("// pop " + arg1 + " " + arg2 +"\n")
-                    .append(this.segments.get(arg1) + "\n")
+                    .append("// pop ").append(arg1).append(" ").append(arg2).append("\n")
+                    .append(this.segments.get(arg1)).append("\n")
                     .append("D=M\n")
-                    .append("@" + arg2 + "\n")
+                    .append("@").append(arg2).append("\n")
                     .append("D=D+A\n")
-                    .append("@" + this.register + "\n")
+                    .append("@").append(this.register).append("\n")
                     .append("M=D\n")
                     .append("@SP\n")
                     .append("A=M-1\n")
                     .append("D=M\n")
-                    .append("@" + this.register + "\n")
+                    .append("@").append(this.register).append("\n")
                     .append("A=M\n")
                     .append("M=D\n")
                     .append("@SP\n")
@@ -213,12 +213,41 @@ public class CodeWriter{
         }
     }
 
-    private void negNotBuilder(String command, String type, StringBuilder sb) throws IOException{
+    public void writeLabel(String label, String fullCommand) throws IOException{
+        StringBuilder sb = new StringBuilder();
         this.writeData(sb
-            .append("// " + command + "\n")
+            .append("// ").append(fullCommand).append("\n")
+            .append("(").append(label).append(")")
+            .toString());
+    }
+
+    public void writeIf(String label, String fullCommand) throws IOException{
+        StringBuilder sb = new StringBuilder();
+        this.writeData(sb
+            .append("// ").append(fullCommand).append("\n")
             .append("@SP\n")
             .append("AM=M-1\n")
-            .append("D=" + type +"M\n")
+            .append("D=M\n")
+            .append("@").append(label).append("\n")
+            .append("D;JGT")
+            .toString());
+    }
+
+    public void writeGoto(String label, String fullCommand) throws IOException{
+        StringBuilder sb = new StringBuilder();
+        this.writeData(sb
+            .append("// ").append(fullCommand).append("\n")
+            .append("@").append(label).append("\n")
+            .append("0;JMP")
+            .toString());
+    }
+
+    private void negNotBuilder(String command, String type, StringBuilder sb) throws IOException{
+        this.writeData(sb
+            .append("// ").append(command).append("\n")
+            .append("@SP\n")
+            .append("AM=M-1\n")
+            .append("D=").append(type).append("M\n")
             .append("M=D\n")
             .append("@SP\n")
             .append("M=M+1")
@@ -232,7 +261,7 @@ public class CodeWriter{
         String endAddr = "(END" + counter + ")";
         counter++;
         this.writeData(sb
-            .append("// " + command + "\n")
+            .append("// ").append(command).append("\n")
             .append("@SP\n")
             .append("M=M-1\n")
             .append("AM=M\n")
@@ -241,18 +270,18 @@ public class CodeWriter{
             .append("M=M-1\n")
             .append("AM=M\n")
             .append("D=M-D\n")
-            .append(truth + "\n")
-            .append("D; " + type + "\n")
+            .append(truth).append("\n")
+            .append("D;").append(type).append("\n")
             .append("@SP\n")
             .append("AM=M\n")
             .append("M=0\n")
-            .append(end + "\n")
+            .append(end).append("\n")
             .append("0; JMP\n")
-            .append(truthAddr + "\n")
+            .append(truthAddr).append("\n")
             .append("@SP\n")
             .append("AM=M\n")
             .append("M=-1\n")
-            .append(endAddr + "\n")
+            .append(endAddr).append("\n")
             .append("@SP\n")
             .append("M=M+1")
             .toString());
@@ -260,7 +289,7 @@ public class CodeWriter{
 
     private void operators(String command, String type, StringBuilder sb) throws IOException{
         this.writeData(sb
-            .append("// " + command + "\n")
+            .append("// ").append(command).append("\n")
             .append("@SP\n")
             .append("M=M-1\n")
             .append("AM=M\n")
@@ -268,7 +297,7 @@ public class CodeWriter{
             .append("@SP\n")
             .append("M=M-1\n")
             .append("AM=M\n")
-            .append("D=M" + type + "D\n")
+            .append("D=M").append(type).append("D\n")
             .append("@SP\n")
             .append("AM=M\n")
             .append("M=D\n")
