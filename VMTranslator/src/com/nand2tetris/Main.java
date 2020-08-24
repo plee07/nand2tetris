@@ -32,8 +32,15 @@ public class Main{
                     break;
                 case "C_GOTO":
                     writer.writeGoto(parser.getArg1(), parser.getFullCommand());
+                    break;
                 case "C_ARITHMETIC":
                     writer.writeArithmetic(parser.getArg0());
+                    break;
+                case "C_FUNCTION":
+                    writer.writeFunc(parser.getArg1(), parser.getArg2(), parser.getFullCommand());
+                    break;
+                case "C_RETURN":
+                    writer.writeReturn(parser.getFullCommand());
                     break;
             }
 

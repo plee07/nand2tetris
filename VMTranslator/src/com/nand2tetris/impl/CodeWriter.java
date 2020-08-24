@@ -45,7 +45,6 @@ public class CodeWriter{
     }
 
     // Push the value of segment[index] onto the stack
-    // TODO convert String.format to StringBuilder
     public void writePush(String arg1, int arg2) throws IOException{
         StringBuilder sb = new StringBuilder();
         switch(arg1){
@@ -242,6 +241,32 @@ public class CodeWriter{
             .toString());
     }
 
+    public void writeFunc(String label, int nArgs, String fullCommand) throws IOException{
+        String function = "(" + label + ")";
+        StringBuilder sb = new StringBuilder();
+        this.writeData(sb
+            .append("// ").append(fullCommand).append("\n")
+            .append(function)
+            .toString());
+
+        for(int i = 0; i < nArgs; i++){
+            this.writePush("constant", 0);
+        }
+    }
+
+    public void writeReturn(String fullCommand) throws IOException{
+        StringBuilder sb = new StringBuilder();
+        this.writeData(sb.append("// ").append(fullCommand).toString());
+        this.setFrame();
+        this.writePop("argument", 0);
+        this.incrArg();
+        this.getPrevStack("THAT", 1);
+        this.getPrevStack("THIS", 2);
+        this.getPrevStack("ARG", 3);
+        this.getPrevStack("LCL", 4);
+        this.returnCaller();
+    }
+
     private void negNotBuilder(String command, String type, StringBuilder sb) throws IOException{
         this.writeData(sb
             .append("// ").append(command).append("\n")
@@ -303,6 +328,55 @@ public class CodeWriter{
             .append("M=D\n")
             .append("@SP\n")
             .append("M=M+1")
+            .toString());
+    }
+
+    private void setFrame() throws IOException{
+        StringBuilder sb = new StringBuilder();
+        this.writeData(sb
+            .append("@LCL\n")
+            .append("D=M\n")
+            .append("@5\n")
+            .append("D=D-A\n")
+            .append("A=D\n")
+            .append("D=M\n")
+            .append("@R14\n")
+            .append("M=D")
+            .toString());
+    }
+
+    private void incrArg() throws IOException{
+        StringBuilder sb = new StringBuilder();
+        this.writeData(sb
+            .append("@ARG\n")
+            .append("D=M+1\n")
+            .append("@SP\n")
+            .append("M=D")
+            .toString());
+    }
+
+    private void getPrevStack(String type, int count) throws IOException{
+        StringBuilder sb = new StringBuilder();
+        this.writeData(sb
+            .append("// ").append(type).append("\n")
+            .append("@LCL\n")
+            .append("D=M\n")
+            .append("@").append(count).append("\n")
+            .append("D=D-A\n")
+            .append("A=D\n")
+            .append("D=M\n")
+            .append("@").append(type).append("\n")
+            .append("M=D")
+            .toString());
+    }
+
+    private void returnCaller() throws IOException{
+    StringBuilder sb = new StringBuilder();
+        this.writeData(sb
+            .append("// Return to caller\n")
+            .append("@R14\n")
+            .append("A=M\n")
+            .append("0;JMP")
             .toString());
     }
 }

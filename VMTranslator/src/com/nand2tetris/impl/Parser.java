@@ -86,6 +86,12 @@ public class Parser{
                 return "C_IF";
             case "goto":
                 return "C_GOTO";
+            case "function":
+                return "C_FUNCTION";
+            case "return":
+                return "C_RETURN";
+            case "call":
+                return "C_CALL";
             default:
                 return command;
         }
