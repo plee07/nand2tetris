@@ -258,13 +258,38 @@ public class CodeWriter{
         StringBuilder sb = new StringBuilder();
         this.writeData(sb.append("// ").append(fullCommand).toString());
         this.setFrame();
-        this.writePop("argument", 0);
+        this.argPop();
         this.incrArg();
         this.getPrevStack("THAT", 1);
         this.getPrevStack("THIS", 2);
         this.getPrevStack("ARG", 3);
         this.getPrevStack("LCL", 4);
         this.returnCaller();
+    }
+
+    public void writeInit() throws IOException{
+        StringBuilder sb = new StringBuilder();
+        this.writeData(sb
+            .append("// Bootstrap\n")
+            .append("@256\n")
+            .append("D=A\n")
+            .append("@SP\n")
+            .append("M=D\n")
+            .toString());
+        // Add call to sys.init
+    }
+
+    public void writeCall(String arg1, int arg2, String fullCommand) throws IOException{
+        StringBuilder sb = new StringBuilder();
+        this.writeData(sb.append("// ").append(fullCommand).toString());
+        this.pushReturnAddr();
+        this.pushStack("LCL");
+        this.pushStack("ARG");
+        this.pushStack("THIS");
+        this.pushStack("THAT");
+        this.updateArgUpdateLCL(arg2);
+        this.jumpAndReturn(arg1);
+
     }
 
     private void negNotBuilder(String command, String type, StringBuilder sb) throws IOException{
@@ -312,6 +337,7 @@ public class CodeWriter{
             .toString());
     }
 
+
     private void operators(String command, String type, StringBuilder sb) throws IOException{
         this.writeData(sb
             .append("// ").append(command).append("\n")
@@ -336,11 +362,26 @@ public class CodeWriter{
         this.writeData(sb
             .append("@LCL\n")
             .append("D=M\n")
+            .append("@frame\n")
+            .append("M=D\n")
             .append("@5\n")
             .append("D=D-A\n")
             .append("A=D\n")
             .append("D=M\n")
-            .append("@R14\n")
+            .append("@return\n")
+            .append("M=D")
+            .toString());
+    }
+
+    private void argPop() throws IOException{
+        StringBuilder sb = new StringBuilder();
+        this.writeData(sb
+            .append("@SP\n")
+            .append("M=M-1\n")
+            .append("A=M\n")
+            .append("D=M\n")
+            .append("@ARG\n")
+            .append("A=M\n")
             .append("M=D")
             .toString());
     }
@@ -359,7 +400,7 @@ public class CodeWriter{
         StringBuilder sb = new StringBuilder();
         this.writeData(sb
             .append("// ").append(type).append("\n")
-            .append("@LCL\n")
+            .append("@frame\n")
             .append("D=M\n")
             .append("@").append(count).append("\n")
             .append("D=D-A\n")
@@ -371,12 +412,75 @@ public class CodeWriter{
     }
 
     private void returnCaller() throws IOException{
-    StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         this.writeData(sb
             .append("// Return to caller\n")
-            .append("@R14\n")
+            .append("@return\n")
             .append("A=M\n")
             .append("0;JMP")
             .toString());
     }
+
+    private void pushReturnAddr() throws IOException{
+        StringBuilder sb = new StringBuilder();
+        this.writeData(sb
+//            .append("@SP\n")
+//            .append("D=M\n")
+//            .append("@R13\n")
+//            .append("M=D\n")
+            .append("@RETURN$").append(this.counter).append("\n")
+            .append("D=A\n")
+            .append("@SP\n")
+            .append("A=M\n")
+            .append("M=D\n")
+//            .append("@SP\n")
+//            .append("M=M+1")
+            .toString());
+    }
+
+    private void pushStack(String type) throws IOException{
+        StringBuilder sb = new StringBuilder();
+        this.writeData(sb
+            .append("// PUSH ").append(type).append("\n")
+            .append("@SP\n")
+            .append("M=M+1\n")
+            .append("@").append(type).append("\n")
+            .append("D=M\n")
+            .append("@SP\n")
+            .append("A=M\n")
+            .append("M=D")
+            .toString());
+    }
+
+    private void updateArgUpdateLCL(int nArgs) throws IOException{
+        StringBuilder sb = new StringBuilder();
+        this.writeData(sb
+            .append("// Update ARGS\n")
+            .append("@SP\n")
+            .append("M=M+1\n")
+            .append("D=M\n")
+            .append("@").append(nArgs).append("\n")
+            .append("D=D-A\n")
+            .append("@5\n")
+            .append("D=D-A\n")
+            .append("@ARG\n")
+            .append("M=D\n")
+            .append("@SP\n")
+            .append("D=M\n")
+            .append("@LCL\n")
+            .append("M=D")
+            .toString());
+    }
+
+    private void jumpAndReturn(String funcName) throws IOException{
+        StringBuilder sb = new StringBuilder();
+        this.writeData(sb
+            .append("// GOTO FUNCTION\n")
+            .append("@").append(funcName).append("\n")
+            .append("0;JMP\n")
+            .append("(").append("RETURN$").append(this.counter).append(")")
+            .toString());
+        this.counter++;
+    }
+
 }
